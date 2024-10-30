@@ -61,18 +61,4 @@ public class UIManager : MonoBehaviour
         Application.Quit();
 #endif
     }
-
-    public void SelectHost()
-    {
-        CharDataManager.instance.Role = UserRole.Host;
-        // 다음 캐릭터 선택 씬으로 이동
-        UnityEngine.SceneManagement.SceneManager.LoadScene("CharcterSelectScene");
-    }
-
-    public void SelectGuest()
-    {
-        CharDataManager.instance.Role = UserRole.Guest;
-        // 다음 캐릭터 선택 씬으로 이동
-        UnityEngine.SceneManagement.SceneManager.LoadScene("CharcterSelectScene");
-    }
 }

@@ -19,12 +19,28 @@ public class Network : MonoBehaviour
     Buffer bufferSend;
     Buffer bufferReceive;
 
+    private string playerName;
+
     public string name;
+
+    private const char MESSAGE_SEPARATOR = '|';  // 메시지 타입과 데이터를 구분하는 문자
+
+    public string PlayerName
+    {
+        get { return playerName; }
+        set { playerName = value; }
+    }
 
     void Start()
     {
         bufferSend = new Buffer();
         bufferReceive = new Buffer();
+
+        // CharDataManager에서 이름 가져오기
+        if (CharDataManager.instance != null)
+        {
+            playerName = CharDataManager.instance.PlayerName;
+        }
     }
 
     public void HostStart(int port, int backlog=10)
@@ -138,5 +154,40 @@ public class Network : MonoBehaviour
                 bufferReceive.Write(bytes, length);
             }
         }
+    }
+
+    public void SendMessage(MessageType type, string data)
+    {
+        // "타입|데이터" 형식으로 메시지 구성
+        string message = $"{(int)type}{MESSAGE_SEPARATOR}{data}";
+        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(message);
+        Send(bytes, bytes.Length);
+    }
+
+    public NetworkMessage ReceiveMessage(ref byte[] bytes, int length)
+    {
+        int receivedLength = Receive(ref bytes, length);
+        if (receivedLength > 0)
+        {
+            string message = System.Text.Encoding.UTF8.GetString(bytes, 0, receivedLength).TrimEnd('\0');
+
+            // 구분자로 분리
+            string[] parts = message.Split(MESSAGE_SEPARATOR);
+            if (parts.Length >= 2)
+            {
+                try
+                {
+                    MessageType type = (MessageType)int.Parse(parts[0]);
+                    string data = parts[1];
+                    return new NetworkMessage(type, data);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"Failed to parse message: {e.Message}");
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 }

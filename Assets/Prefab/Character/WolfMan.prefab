@@ -2734,7 +2734,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 132358821cf502c4d9e675270f824b01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: 0
+  network: {fileID: 7513249931124788895, guid: 9ed7d7ea824fa2d43b8f6ff51b008121, type: 3}
+  character: 4
   particle: {fileID: 5792118357042402117}
   chars:
   - {fileID: 0}
@@ -2743,6 +2744,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 5354639669949258633}
   - {fileID: 0}
+  selectBtn: {fileID: 0}
+  confirmBtn: {fileID: 0}
 --- !u!1 &7192710140700154563
 GameObject:
   m_ObjectHideFlags: 0
@@ -3790,6 +3793,10 @@ PrefabInstance:
     - target: {fileID: 3744133877081091469, guid: a2a060732547fe64581bb0cb3c2bdf1d, type: 3}
       propertyPath: m_Name
       value: Magic circle
+      objectReference: {fileID: 0}
+    - target: {fileID: 3744133877081091469, guid: a2a060732547fe64581bb0cb3c2bdf1d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

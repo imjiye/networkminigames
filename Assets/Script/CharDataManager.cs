@@ -18,8 +18,11 @@ public class CharDataManager : MonoBehaviour
 {
     public static CharDataManager instance;
 
-    public Character CurCharcter;
+    public Character CurHostCharcter = Character.ElfMan; // 기본값 설정
+    public Character CurGuestCharcter = Character.ElfWoman; // 기본값 설정
     public UserRole Role;
+    public string PlayerName;
+
     private void Awake()
     {
         if (instance == null) instance = this;

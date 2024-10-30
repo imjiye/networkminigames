@@ -1,72 +1,126 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class CharacterSpawn : MonoBehaviour
 {
-    public GameObject[] Player0Prefab;
-    public GameObject[] Player1Prefab;
+    public GameObject[] hostCharacterPrefabs;
+    public GameObject[] guestCharacterPrefabs;
+    private GameObject[] spawnedHostCharacters;
+    private GameObject[] spawnedGuestCharacters;
+    private Network network;
+    private int currentHostIndex = -1;
+    private int currentGuestIndex = -1;
 
-    public static CharacterSpawn Instance;
-
-    private void Awake()
+    void Awake()
     {
-        Instance = this;
+        Debug.Log("[CharacterSpawn] Awake called");
+        spawnedHostCharacters = new GameObject[hostCharacterPrefabs.Length];
+        spawnedGuestCharacters = new GameObject[guestCharacterPrefabs.Length];
+
+        // 모든 캐릭터 프리팹을 미리 인스턴스화
+        for (int i = 0; i < hostCharacterPrefabs.Length; i++)
+        {
+            spawnedHostCharacters[i] = Instantiate(hostCharacterPrefabs[i], transform);
+            spawnedHostCharacters[i].SetActive(false);
+        }
+
+        for (int i = 0; i < guestCharacterPrefabs.Length; i++)
+        {
+            spawnedGuestCharacters[i] = Instantiate(guestCharacterPrefabs[i], transform);
+            spawnedGuestCharacters[i].SetActive(false);
+        }
     }
-    // Start is called before the first frame update
+
     void Start()
     {
-        // Host일 경우
+        Debug.Log("[CharacterSpawn] Start called");
+        StartCoroutine(InitializeNetwork());
+    }
+
+    private IEnumerator InitializeNetwork()
+    {
+        yield return new WaitUntil(() => NetworkManager.Instance != null);
+        network = NetworkManager.Instance.GetNetwork();
+        Debug.Log("[CharacterSpawn] Network connected!");
+
+        yield return new WaitUntil(() => CharDataManager.instance != null);
+
         if (CharDataManager.instance.Role == UserRole.Host)
         {
-            SpawnHostCharacter((int)CharDataManager.instance.CurCharcter);
+            currentHostIndex = (int)CharDataManager.instance.CurHostCharcter;
+            Debug.Log($"[CharacterSpawn] Initial Host index set to: {currentHostIndex}");
+            UpdateCharacters();
+            StartCoroutine(SendCharacterInfo());
         }
-        // Guest일 경우
-        else if (CharDataManager.instance.Role == UserRole.Guest)
+
+        StartCoroutine(ReceiveCharacterInfo());
+    }
+
+    private void UpdateCharacters()
+    {
+        Debug.Log($"[CharacterSpawn] Updating characters - Host: {currentHostIndex}, Guest: {currentGuestIndex}");
+
+        // Host 캐릭터 업데이트
+        for (int i = 0; i < spawnedHostCharacters.Length; i++)
         {
-            SpawnGuestCharacter((int)CharDataManager.instance.CurCharcter);
+            bool shouldBeActive = (i == currentHostIndex);
+            spawnedHostCharacters[i].SetActive(shouldBeActive);
+            Debug.Log($"[CharacterSpawn] Host character {i} set active: {shouldBeActive}");
+        }
+
+        // Guest 캐릭터 업데이트
+        for (int i = 0; i < spawnedGuestCharacters.Length; i++)
+        {
+            bool shouldBeActive = (i == currentGuestIndex);
+            spawnedGuestCharacters[i].SetActive(shouldBeActive);
+            Debug.Log($"[CharacterSpawn] Guest character {i} set active: {shouldBeActive}");
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator SendCharacterInfo()
     {
-        for (int i = 0; i < Player0Prefab.Length; i++)
+        while (true)
         {
-            if ((int)CharDataManager.instance.CurCharcter == i)
+            if (CharDataManager.instance.Role == UserRole.Host)
             {
-                Player0Prefab[i].SetActive(true);
+                string message = $"{currentHostIndex}";
+                //network.SendMessage(MessageType.CharacterInfo, message);
+                Debug.Log($"[CharacterSpawn] Sent character info: {message}");
             }
-            else
-            {
-                Player0Prefab[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < Player1Prefab.Length; i++)
-        {
-            if ((int)CharDataManager.instance.CurCharcter == i)
-            {
-                Player1Prefab[i].SetActive(true);
-            }
-            else
-            {
-                Player1Prefab[i].SetActive(false);
-            }
+            yield return new WaitForSeconds(1f);
         }
     }
 
-    private void SpawnHostCharacter(int characterIndex)
+    private IEnumerator ReceiveCharacterInfo()
     {
-        for (int i = 0; i < Player0Prefab.Length; i++)
+        while (true)
         {
-            Player0Prefab[i].SetActive(i == characterIndex);
+            byte[] bytes = new byte[1024];
+            NetworkMessage message = network.ReceiveMessage(ref bytes, bytes.Length);
+
+            if (message != null)
+            {
+                //if (message.type == MessageType.CharacterInfo)
+                //{
+                //    if (CharDataManager.instance.Role == UserRole.Guest)
+                //    {
+                //        currentHostIndex = int.Parse(message.data);
+                //        Debug.Log($"[CharacterSpawn] Guest received Host index: {currentHostIndex}");
+                //    }
+                //    UpdateCharacters();
+                //}
+                //else if (message.type == MessageType.GuestSelection)
+                //{
+                //    currentGuestIndex = int.Parse(message.data);
+                //    Debug.Log($"[CharacterSpawn] Host received Guest index: {currentGuestIndex}");
+                //    UpdateCharacters();
+                //}
+            }
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
-    private void SpawnGuestCharacter(int characterIndex)
-    {
-        for (int i = 0; i < Player1Prefab.Length; i++)
-        {
-            Player1Prefab[i].SetActive(i == characterIndex);
-        }
-    }
+    public GameObject[] GetSpawnedHostCharacters() => spawnedHostCharacters;
+    public GameObject[] GetSpawnedGuestCharacters() => spawnedGuestCharacters;
 }
