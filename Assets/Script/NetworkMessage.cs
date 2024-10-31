@@ -7,7 +7,9 @@ public enum MessageType
     Chat = 0,
     CharacterSpawn = 1,
     CharacterUpdate = 2,
-    Animation = 3
+    Animation = 3,
+    CharacterInfo = 4,
+    GuestSelection = 5
 }
 
 [System.Serializable]

@@ -21,7 +21,7 @@ public class Network : MonoBehaviour
 
     private string playerName;
 
-    public string name;
+    public string user;
 
     private const char MESSAGE_SEPARATOR = '|';  // 메시지 타입과 데이터를 구분하는 문자
 
