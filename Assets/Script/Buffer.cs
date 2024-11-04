@@ -53,13 +53,16 @@ public class Buffer
         {
             Packet packet = list[0];
 
+            // 패킷으로부터 해당하는 패킷 데이터를 가져오기
             int dataSize = Math.Min(length, packet.size);
             stream.Position = packet.pos;
             ret = stream.Read(bytes, 0, dataSize);
 
+            // 리스트에서 데이터를 추출했으므로 가장 앞의 데이터는 삭제
             if (ret > 0)
                 list.RemoveAt(0);
 
+            // 모든 데이터 추출시 스트림을 비우기
             if (list.Count == 0)
             {
                 byte[] b = stream.GetBuffer();
@@ -73,5 +76,14 @@ public class Buffer
         }
 
         return ret;
+    }
+
+    public void Clear()
+    {
+        byte[] buf = stream.GetBuffer();
+        Array.Clear(buf, 0, buf.Length);
+
+        stream.Position = 0;
+        stream.SetLength(0);
     }
 }

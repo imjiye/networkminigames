@@ -4,26 +4,30 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using UnityEngine;
+using System;
 
 public class Network : MonoBehaviour
 {
-    bool bServer = false;
-    bool bConnect = false;
+    bool bHost = false; // 서버 플래그
+    bool bConnect = false; // 접속 플래그
 
-    Socket socketListen = null;
-    Socket socket = null;
+    Socket socketListen = null; // 리스닝 소켓
+    Socket socket = null; // 클라이언트 접속용 소켓
 
     Thread thread = null;
     bool bThreadBegin = false;
 
-    Buffer bufferSend;
-    Buffer bufferReceive;
+    Buffer bufferSend; // 송신 버퍼
+    Buffer bufferReceive; // 수신 버퍼
 
     private string playerName;
 
     public string user;
 
     private const char MESSAGE_SEPARATOR = '|';  // 메시지 타입과 데이터를 구분하는 문자
+
+    public delegate void EventHandler(NetEventState state);
+    private EventHandler m_handler;
 
     public string PlayerName
     {
@@ -51,7 +55,7 @@ public class Network : MonoBehaviour
         socketListen.Bind(ep);
         socketListen.Listen(backlog);
 
-        bServer = true;
+        bHost = true;
         Debug.Log("Host Start");
 
         StartThread();
@@ -59,7 +63,7 @@ public class Network : MonoBehaviour
 
     public bool IsHost()
     {
-        return bServer;
+        return bHost;
     }
 
     bool StartThread()
@@ -89,6 +93,28 @@ public class Network : MonoBehaviour
         }
     }
 
+    public void StopServer()
+    {
+        bThreadBegin = false;
+        if(thread != null)
+        {
+            thread.Join();
+            thread = null;
+        }
+
+        Disconnect();
+
+        if(socketListen != null)
+        {
+            socketListen.Close();
+            socketListen = null;
+        }
+
+        bHost = false;
+
+        Debug.Log("Server stopped.");
+    }
+
     public void GuestStart(string address, int port)
     {
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -97,6 +123,15 @@ public class Network : MonoBehaviour
 
         bConnect= true;
         Debug.Log("Guest Start");
+
+        if (m_handler != null)
+        {
+            NetEventState state = new NetEventState();
+            state.type = NetEnvetType.Connect;
+            state.result = (bConnect == true) ? NetVEventResult.Sussess : NetVEventResult.Fail;
+            m_handler(state);
+            Debug.Log("event handler called");
+        }
 
         StartThread();
     }
@@ -107,6 +142,14 @@ public class Network : MonoBehaviour
         {
             socket = socketListen.Accept();
             bConnect = true;
+
+            if (m_handler != null)
+            {
+                NetEventState state = new NetEventState();
+                state.type = NetEnvetType.Connect;
+                state.result = (bConnect == true) ? NetVEventResult.Sussess : NetVEventResult.Fail;
+                m_handler(state);
+            }
 
             Debug.Log("Guest Connect");
         }
@@ -125,6 +168,16 @@ public class Network : MonoBehaviour
     public int Receive(ref byte[] bytes, int length)
     {
         return bufferReceive.Read(ref bytes, length);
+    }
+
+    public void RegisterEventHandler(EventHandler handler)
+    {
+        m_handler += handler;
+    }
+
+    public void UnregisterEventHandler(EventHandler handler)
+    {
+        m_handler -= handler;
     }
 
     void SendUpdate()
@@ -189,5 +242,25 @@ public class Network : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public void Disconnect()
+    {
+        bConnect = false;
+
+        if(socket != null)
+        {
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+            socket = null;
+
+           if(m_handler != null)
+            {
+                NetEventState state  = new NetEventState();
+                state.type = NetEnvetType.Disconnect;
+                state.result = NetVEventResult.Sussess;
+                m_handler(state);
+            }
+        }
     }
 }
