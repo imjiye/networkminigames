@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+using UnityEditor;
 
 public class TicTakTok : MonoBehaviour
 {
@@ -109,7 +111,7 @@ public class TicTakTok : MonoBehaviour
 
             case State.Game:
                 DrawBoardAndMarks();
-                if(Turn == hostMark)
+                if(markTurn == hostMark)
                 {
                     DrawTime();
                 }
@@ -435,9 +437,14 @@ public class TicTakTok : MonoBehaviour
 
         rect.y += 140.0f;
 
-        if(hostMark == Mark.Left && winner == Winner.Left) || (hostMark == Mark.Right && winner == Winner.Right)
+        if((hostMark == Mark.Left && winner == Winner.Left) ||(hostMark == Mark.Right && winner == Winner.Right))
         {
+            Graphics.DrawTexture(rect, texWin);
+        }
 
+        if((hostMark == Mark.Left && winner == Winner.Right) || (hostMark == Mark.Right && winner == Winner.Left))
+        {
+            Graphics.DrawTexture(rect, texLose);
         }
     }
 
@@ -558,5 +565,43 @@ public class TicTakTok : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    void NotifyDisconnection()
+    {
+        GUISkin skin = GUI.skin;
+        GUIStyle style = new GUIStyle(GUI.skin.GetStyle("button"));
+        style.normal.textColor = Color.white;
+        style.fontSize = 25;
+
+        float sx = 450;
+        float sy = 200;
+        float px = Screen.width / 2 - sx * 0.5f;
+        float py = Screen.height / 2 - sy * 0.5f;
+
+        string message = "È¸¼±ÀÌ ²÷°å½À´Ï´Ù.";
+        if(GUI.Button(new Rect(px, py, sx, sy), message, style))
+        {
+            ResetGame();
+            isGameOver = true;
+        }
+    }
+
+    public bool IsGameOver()
+    {
+        return isGameOver;
+    }
+
+    public void EventCallback(NetEventState progress)
+    {
+        switch (progress.type)
+        {
+            case NetEnvetType.Disconnect:
+                if (state < State.Result && isGameOver == false)
+                {
+                    state = State.Disconnect;
+                }
+                break;
+        }
     }
 }
