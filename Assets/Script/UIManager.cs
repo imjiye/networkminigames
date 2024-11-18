@@ -45,6 +45,12 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene(sceneID);
     }
 
+    // 로딩 씬 전환
+    public void LodingSceneChange(string sceneID)
+    {
+        SceneManagerCanvas.instance.ChangerScene(sceneID);
+    }
+
     // 게임 재시작
     public void GameRestart()
     {
@@ -60,5 +66,11 @@ public class UIManager : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    // 패널 부드럽게 지우기
+    public void FadeOutPanel()
+    {
+
     }
 }

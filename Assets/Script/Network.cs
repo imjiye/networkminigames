@@ -17,8 +17,8 @@ public class Network : MonoBehaviour
     Thread thread = null;
     bool bThreadBegin = false;
 
-    Buffer bufferSend; // 송신 버퍼
-    Buffer bufferReceive; // 수신 버퍼
+    Buffer bufferSend = new Buffer(); // 송신 버퍼
+    Buffer bufferReceive = new Buffer(); // 수신 버퍼
 
     private string playerName;
 
@@ -29,6 +29,18 @@ public class Network : MonoBehaviour
     public delegate void EventHandler(NetEventState state);
     private EventHandler m_handler;
 
+    private void Awake()
+    {
+        if(bufferSend == null)
+        {
+            bufferSend = new Buffer();
+        }
+        if(bufferReceive == null)
+        {
+            bufferReceive = new Buffer();
+        }
+    }
+
     public string PlayerName
     {
         get { return playerName; }
@@ -37,9 +49,6 @@ public class Network : MonoBehaviour
 
     void Start()
     {
-        bufferSend = new Buffer();
-        bufferReceive = new Buffer();
-
         // CharDataManager에서 이름 가져오기
         if (CharDataManager.instance != null)
         {
@@ -211,6 +220,12 @@ public class Network : MonoBehaviour
 
     public void SendMessage(MessageType type, string data)
     {
+        if (bufferSend == null)
+        {
+            Debug.LogError("Buffer is not initialized!");
+            return;
+        }
+
         // "타입|데이터" 형식으로 메시지 구성
         string message = $"{(int)type}{MESSAGE_SEPARATOR}{data}";
         byte[] bytes = System.Text.Encoding.UTF8.GetBytes(message);
