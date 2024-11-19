@@ -22,37 +22,39 @@ public class SelectCharacter : MonoBehaviour
                 Debug.LogError("[SelectCharacter] Network component not found in scene!");
             }
         }
-        
+        // 현재 씬이 캐릭터 선택 씬인지 확인
+        isInSelectionScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "CharcterSelectScene";
     }
 
     void Start()
     {
-        // 네트워크 연결 상태 확인
-        if (network != null && !network.IsConnect())
-        {
-            Debug.LogWarning("[SelectCharacter] Network is not connected!");
-        }
-
-        // 현재 씬이 캐릭터 선택 씬인지 확인
-        isInSelectionScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "CharcterSelectScene";
-
+        // 캐릭터 선택 씬일 때만 버튼 초기화와 네트워크 체크를 수행
         if (isInSelectionScene)
         {
+            // 네트워크 연결 상태 확인
+            if (network != null && !network.IsConnect())
+            {
+                Debug.LogWarning("[SelectCharacter] Network is not connected!");
+            }
+
             particle.SetActive(false);
             gameObject.SetActive(false);
+            InitializeButtons();
         }
         else
         {
+            // 캐릭터 선택 씬이 아닐 경우 버튼 리스너를 등록하지 않음
             gameObject.SetActive(true);
+            if (selectBtn != null) selectBtn.onClick.RemoveAllListeners();
+            if (confirmBtn != null) confirmBtn.onClick.RemoveAllListeners();
         }
-
-        InitializeButtons();
     }
 
     private void InitializeButtons()
     {
         if (selectBtn != null)
         {
+            selectBtn.onClick.RemoveAllListeners();
             selectBtn.onClick.AddListener(() => OnSelect());
         }
         else
@@ -62,12 +64,20 @@ public class SelectCharacter : MonoBehaviour
 
         if (confirmBtn != null)
         {
+            confirmBtn.onClick.RemoveAllListeners();
             confirmBtn.onClick.AddListener(() => ConfirmSelection());
         }
         else
         {
             Debug.LogWarning("[SelectCharacter] Confirm button is not assigned!");
         }
+    }
+
+    private void OnDestroy()
+    {
+        // 스크립트가 제거될 때 모든 리스너 제거
+        if (selectBtn != null) selectBtn.onClick.RemoveAllListeners();
+        if (confirmBtn != null) confirmBtn.onClick.RemoveAllListeners();
     }
 
     public void OnSelect()

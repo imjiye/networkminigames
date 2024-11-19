@@ -23,6 +23,8 @@ public class UIManager : MonoBehaviour
     private static UIManager m_instance;
 
     public UIManager uiManager;
+    public GameObject gamePanel;
+    public GameObject errorPopup;
 
     // Start is called before the first frame update
     void Start()
@@ -68,9 +70,27 @@ public class UIManager : MonoBehaviour
 #endif
     }
 
-    // 패널 부드럽게 지우기
-    public void FadeOutPanel()
+    // 게임선택창 활성화
+    public void GamePanelOn()
     {
+        gamePanel.SetActive(true);
+    }
+    
+    // 게임선택창 비활성화
+    public void GamePanelOff()
+    {
+        gamePanel.SetActive(false);
+    }
 
+    // 에러창 활성화
+    public void ErrorOn()
+    {
+        errorPopup.SetActive(true);
+    }
+
+    // 게임선택창 비활성화
+    public void ErrorOff()
+    {
+        errorPopup.SetActive(false);
     }
 }

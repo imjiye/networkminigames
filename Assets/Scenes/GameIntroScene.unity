@@ -526,7 +526,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: CharcterSelectScene
+          m_StringArgument: HostGuestSelectScene
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &467642027
@@ -685,7 +685,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -768,6 +768,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiManager: {fileID: 673123489}
+  gamePanel: {fileID: 0}
+  errorPopup: {fileID: 0}
 --- !u!4 &673123490
 Transform:
   m_ObjectHideFlags: 0
@@ -968,7 +970,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Fade_img: {fileID: 684839732}
-  Loading: {fileID: 2116628703}
+  Loading: {fileID: 623327964}
   LoadingText: {fileID: 647886498}
 --- !u!114 &1048386157
 MonoBehaviour:
@@ -999,10 +1001,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
