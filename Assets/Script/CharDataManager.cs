@@ -21,6 +21,7 @@ public class CharDataManager : MonoBehaviour
 
     public Character curHostCharcter;
     public Character curGuestCharcter;
+    public UserRole curUserRole;
 
     // 캐릭터 변경 이벤트
     public event Action<Character> OnHostCharacterChanged;

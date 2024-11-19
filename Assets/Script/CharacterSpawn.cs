@@ -10,8 +10,10 @@ public class CharacterSpawn : MonoBehaviour
     private GameObject currentGuestCharacter;
 
     private Network network;
+
     private int currentHostIndex = -1;
     private int currentGuestIndex = -1;
+
     private bool isInitialized = false;
     private bool hasReceivedInitialData = false;
 
@@ -156,17 +158,6 @@ public class CharacterSpawn : MonoBehaviour
             }
             currentHostCharacter = Instantiate(hostCharacterPrefabs[index], hostSpawnPoint.position, hostSpawnPoint.rotation);
 
-            // 애니메이터 컴포넌트 확인 및 로그
-            Animator animator = currentHostCharacter.GetComponent<Animator>();
-            if (animator != null)
-            {
-                Debug.Log($"[CharacterSpawn] Host character spawned with Animator at index: {index}");
-            }
-            else
-            {
-                Debug.LogError($"[CharacterSpawn] Host character missing Animator component at index: {index}");
-            }
-
             currentHostCharacter.SetActive(true);
         }
     }
@@ -180,17 +171,6 @@ public class CharacterSpawn : MonoBehaviour
                 Destroy(currentGuestCharacter);
             }
             currentGuestCharacter = Instantiate(guestCharacterPrefabs[index], guestSpawnPoint.position, guestSpawnPoint.rotation);
-
-            // 애니메이터 컴포넌트 확인 및 로그
-            Animator animator = currentGuestCharacter.GetComponent<Animator>();
-            if (animator != null)
-            {
-                Debug.Log($"[CharacterSpawn] Guest character spawned with Animator at index: {index}");
-            }
-            else
-            {
-                Debug.LogError($"[CharacterSpawn] Guest character missing Animator component at index: {index}");
-            }
 
             currentGuestCharacter.SetActive(true);
         }
@@ -238,7 +218,6 @@ public class CharacterSpawn : MonoBehaviour
                     }
                 }
                 break;
-
             case MessageType.GuestSelection:
                 if (network.IsHost() && int.TryParse(message.data, out int guestIndex))
                 {
